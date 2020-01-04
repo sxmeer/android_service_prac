@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     Button startServiceButton;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 @Override
                 public void onServiceDisconnected(ComponentName componentName) {
+                    mainService = null;
                     isServiceBinded = false;
                 }
             };
@@ -95,11 +97,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     public void getNumber(){
-        mainService.getRandomNumber().observe(this, new Observer<Double>() {
-            @Override
-            public void onChanged(Double aDouble) {
-                serviceStatusTextView.setText(String.valueOf(aDouble));
-            }
-        });
+        if (mainService == null) {
+            Toast.makeText(this,"start service",Toast.LENGTH_SHORT).show();
+        }else{
+            mainService.getRandomNumber().observe(this, new Observer<Double>() {
+                @Override
+                public void onChanged(Double aDouble) {
+                    serviceStatusTextView.setText(String.valueOf(aDouble));
+                }
+            });
+        }
     }
 }

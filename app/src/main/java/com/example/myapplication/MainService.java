@@ -12,11 +12,13 @@ import androidx.lifecycle.MutableLiveData;
 
 public class MainService extends Service {
     Thread processThread;
+    private static final String TAG = "log";
     MutableLiveData<Double> mutableLiveData = new MutableLiveData<>();
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i("log",String.valueOf(Thread.currentThread().getId()));
+        Log.d(TAG,String.valueOf(Thread.currentThread().getId()));
+        Log.d(TAG, "onCreate: ");
         processThread = new Thread(){
             @Override
             public void run() {
@@ -45,6 +47,7 @@ public class MainService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand:");
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -56,7 +59,7 @@ public class MainService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i("log","des");
+        Log.d(TAG,"des");
         super.onDestroy();
         processThread.interrupt();
     }
