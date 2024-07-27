@@ -3,8 +3,10 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,7 +23,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button unbindServiceButton;
     Button numberButton;
     TextView serviceStatusTextView;
+    Observer<Double> observer;
 
+    BroadcastReceiver myBroadcastReceiver = new MyBroadcastReciever();
     Intent serviceIntent;
 
     private boolean isServiceBinded = false;
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("ThreadId mainact",String.valueOf(Thread.currentThread().getId()));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -47,6 +52,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bindServiceButton.setOnClickListener(this);
         unbindServiceButton.setOnClickListener(this);
         numberButton.setOnClickListener(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter("com.sameer.org");
+        intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+        registerReceiver(myBroadcastReceiver,intentFilter);
+
+
+        Intent intent = new Intent();
+        intent.setAction("com.sameer.org");
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(intent);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(myBroadcastReceiver);
     }
 
     @Override
@@ -89,9 +115,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             };
         }
         bindService(serviceIntent,serviceConnection,BIND_AUTO_CREATE);
+        observer = new Observer<Double>() {
+            @Override
+            public void onChanged(Double aDouble) {
+                serviceStatusTextView.setText(String.valueOf(aDouble));
+            }
+        };
     }
     public void unbindToService(){
         if(isServiceBinded){
+            mainService.getRandomNumber().removeObserver(observer);
             unbindService(serviceConnection);
             isServiceBinded = false;
         }
@@ -100,12 +133,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mainService == null) {
             Toast.makeText(this,"start service",Toast.LENGTH_SHORT).show();
         }else{
-            mainService.getRandomNumber().observe(this, new Observer<Double>() {
+            mainService.getRandomNumber().observe(this, observer
+               /*     new Observer<Double>() {
                 @Override
                 public void onChanged(Double aDouble) {
-                    serviceStatusTextView.setText(String.valueOf(aDouble));
+                    if(mainService!=null)
+                        serviceStatusTextView.setText(String.valueOf(aDouble));
                 }
-            });
+            }*/
+            );
         }
     }
 }

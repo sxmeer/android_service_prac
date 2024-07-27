@@ -17,11 +17,12 @@ public class MainService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG,String.valueOf(Thread.currentThread().getId()));
+        Log.d("ThreadId mainserv",String.valueOf(Thread.currentThread().getId()));
         Log.d(TAG, "onCreate: ");
         processThread = new Thread(){
             @Override
             public void run() {
+                Log.d("ThreadId thread",String.valueOf(Thread.currentThread().getId()));
                 while(true){
                     try{
                         sleep(1000);
@@ -54,6 +55,7 @@ public class MainService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind: ");
         return mbinder;
     }
 

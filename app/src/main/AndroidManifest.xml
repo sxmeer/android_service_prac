@@ -17,6 +17,12 @@
             </intent-filter>
         </activity>
         <service android:name=".MainService"/>
+        <receiver android:name=".MyBroadcastReciever">
+            <intent-filter>
+                <action android:name="com.sameer.org"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
